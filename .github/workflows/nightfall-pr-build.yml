@@ -96,7 +96,6 @@ jobs:
           echo '23550bb2c7a5fa22508997b0ba3ebbfe7ad2fe47b40d8f176a9319f8b8e35f92  '"$ROOT"'/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png' | sha256sum -c -
           test -f "$ROOT/src/main/java/dev/eternalskies/nightfall/client/DuskbornGlowLayer.java"
           test -f "$ROOT/src/main/resources/assets/aether/models/item/vampire_blade.json"
-          grep '^mod_version=' "$ROOT/gradle.properties"
           python3 - <<'PY'
           import json, pathlib
           root = pathlib.Path('nightfall-build/nightfall_01k/src/main/resources')
@@ -105,6 +104,15 @@ jobs:
           print('JSON validation passed')
           PY
 
+      - name: Apply Nightfall 0.2B refuge worldgen fix
+        shell: bash
+        run: |
+          ROOT=nightfall-build/nightfall_01k
+          cp nightfall_02b_patch/DuskRefugeFeature.java "$ROOT/src/main/java/dev/eternalskies/nightfall/world/DuskRefugeFeature.java"
+          sed -i 's/^mod_version=.*/mod_version=0.2.0-dev-b/' "$ROOT/gradle.properties"
+          grep '^mod_version=' "$ROOT/gradle.properties"
+          grep -nE 'Heightmap|surfaceY|Math.abs\(sampleY - centerY\)' "$ROOT/src/main/java/dev/eternalskies/nightfall/world/DuskRefugeFeature.java"
+
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k
         run: gradle --no-daemon --stacktrace clean build
@@ -112,6 +120,6 @@ jobs:
       - name: Upload Nightfall JAR
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.2A-forge-1.20.1
+          name: EternalSkies-Nightfall-0.2B-forge-1.20.1
           path: nightfall-build/nightfall_01k/build/libs/*.jar
           if-no-files-found: error

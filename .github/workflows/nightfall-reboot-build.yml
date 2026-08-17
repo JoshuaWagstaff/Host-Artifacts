@@ -40,6 +40,7 @@ jobs:
           rm -rf nightfall_reboot
           unzip -q /tmp/nightfall-reboot-source.zip
           test -f nightfall_reboot/build.gradle
+          bash nightfall_reboot_payload/apply-fixes.sh
 
       - name: Validate resource JSON
         shell: bash

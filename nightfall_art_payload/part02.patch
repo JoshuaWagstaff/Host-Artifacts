@@ -1,0 +1,204 @@
++            CubeListBuilder.create().texOffs(20, 42).addBox(-1.0F, -1.0F, -0.5F, 2.0F, 2.0F, 1.0F),
++            PartPose.offset(2.0F, -0.1F, -0.45F));
++        face.addOrReplaceChild("right_eye",
++            CubeListBuilder.create().texOffs(28, 42).addBox(-1.0F, -1.0F, -0.5F, 2.0F, 2.0F, 1.0F),
++            PartPose.offset(-2.0F, -0.1F, -0.45F));
++
++        PartDefinition core = body.addOrReplaceChild("core_frame",
++            CubeListBuilder.create().texOffs(38, 42).addBox(-3.0F, -3.0F, -0.7F, 6.0F, 6.0F, 1.4F),
++            PartPose.offset(0.0F, 3.8F, -4.6F));
++        core.addOrReplaceChild("crystal",
++            CubeListBuilder.create().texOffs(64, 42).addBox(-2.2F, -2.2F, -0.85F, 4.4F, 4.4F, 1.7F),
++            PartPose.rotation(0.0F, 0.0F, 0.7854F));
++        core.addOrReplaceChild("rune",
++            CubeListBuilder.create().texOffs(84, 42).addBox(-0.7F, -1.9F, -1.05F, 1.4F, 3.8F, 0.6F),
++            PartPose.rotation(0.0F, 0.0F, -0.35F));
++
++        PartDefinition tailA = body.addOrReplaceChild("tail_a",
++            CubeListBuilder.create().texOffs(0, 52).addBox(-3.0F, -2.2F, -2.8F, 6.0F, 4.4F, 5.6F),
++            PartPose.offset(0.4F, 8.0F, 0.7F));
++        PartDefinition tailB = tailA.addOrReplaceChild("tail_b",
++            CubeListBuilder.create().texOffs(26, 52).addBox(-2.0F, -1.6F, -2.0F, 4.0F, 3.2F, 4.0F),
++            PartPose.offset(-0.8F, 3.6F, -0.2F));
++        tailB.addOrReplaceChild("tail_c",
++            CubeListBuilder.create().texOffs(44, 52).addBox(-1.2F, -1.0F, -1.2F, 2.4F, 2.0F, 2.4F),
++            PartPose.offset(1.0F, 2.5F, 0.3F));
++
++        root.addOrReplaceChild("orbit_a",
++            CubeListBuilder.create().texOffs(58, 52).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 2.0F, 2.0F), PartPose.ZERO);
++        root.addOrReplaceChild("orbit_b",
++            CubeListBuilder.create().texOffs(68, 52).addBox(-0.8F, -0.8F, -0.8F, 1.6F, 1.6F, 1.6F), PartPose.ZERO);
++        root.addOrReplaceChild("orbit_c",
++            CubeListBuilder.create().texOffs(78, 52).addBox(-0.7F, -0.7F, -0.7F, 1.4F, 1.4F, 1.4F), PartPose.ZERO);
+ 
+         return LayerDefinition.create(mesh, 128, 128);
+     }
+@@ -50,17 +121,46 @@
+     public void setupAnim(StormlingEntity entity, float limbSwing, float limbSwingAmount,
+                           float ageInTicks, float netHeadYaw, float headPitch) {
+         float charge = entity.getFuseProgress();
+-        this.body.y = 14.0F + Mth.sin(ageInTicks * 0.09F) * 0.7F;
+-        this.body.yRot = Mth.sin(ageInTicks * 0.035F) * 0.12F;
+-        float pulse = 1.0F + charge * (0.12F + 0.08F * Mth.sin(ageInTicks * 0.9F));
+-        this.core.xScale = pulse;
+-        this.core.yScale = pulse;
+-        this.core.zScale = pulse;
++        float hover = Mth.sin(ageInTicks * 0.105F);
++        float throb = Mth.sin(ageInTicks * (0.28F + charge * 0.62F));
++
++        this.body.y = 12.5F + hover * 0.62F;
++        this.body.yRot = Mth.sin(ageInTicks * 0.032F) * 0.10F;
++        this.crown.y = -5.2F + Mth.sin(ageInTicks * 0.085F + 1.3F) * 0.22F;
++        this.leftCloud.x = -5.2F - throb * (0.10F + charge * 0.28F);
++        this.rightCloud.x = 5.2F + throb * (0.10F + charge * 0.28F);
++        this.lowerCloud.y = 4.5F + Mth.sin(ageInTicks * 0.09F + 2.0F) * 0.18F;
++        this.tailA.zRot = Mth.sin(ageInTicks * 0.075F) * 0.08F;
++        this.tailB.zRot = -Mth.sin(ageInTicks * 0.075F + 0.8F) * 0.12F;
++
++        float corePulse = 1.0F + charge * (0.18F + 0.10F * Mth.sin(ageInTicks * 0.95F));
++        this.core.xScale = 1.0F + charge * 0.05F;
++        this.core.yScale = 1.0F + charge * 0.05F;
++        this.coreCrystal.xScale = corePulse;
++        this.coreCrystal.yScale = corePulse;
++        this.coreCrystal.zScale = corePulse;
++        this.coreCrystal.zRot = 0.7854F + ageInTicks * (0.006F + charge * 0.028F);
++
++        float orbitSpeed = 0.035F + charge * 0.105F;
++        placeOrbiter(this.orbitA, ageInTicks * orbitSpeed, 7.4F, 12.0F + hover * 0.4F, 0.0F);
++        placeOrbiter(this.orbitB, ageInTicks * orbitSpeed + 2.1F, 6.8F, 13.8F - hover * 0.35F, 0.8F);
++        placeOrbiter(this.orbitC, ageInTicks * orbitSpeed + 4.2F, 8.1F, 10.7F + hover * 0.25F, -0.7F);
++    }
++
++    private static void placeOrbiter(ModelPart part, float angle, float radius, float y, float zBias) {
++        part.x = Mth.cos(angle) * radius;
++        part.z = Mth.sin(angle) * radius + zBias;
++        part.y = y + Mth.sin(angle * 1.7F) * 0.8F;
++        part.yRot = -angle;
++        part.zRot = angle * 0.55F;
+     }
+ 
+     @Override
+     public void renderToBuffer(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
+                                float red, float green, float blue, float alpha) {
+         this.body.render(poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
++        this.orbitA.render(poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
++        this.orbitB.render(poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
++        this.orbitC.render(poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
+     }
+ }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/render/DuskbornRenderer.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/render/DuskbornRenderer.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/render/DuskbornRenderer.java	2026-08-17 22:08:33.359484421 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/render/DuskbornRenderer.java	2026-08-17 22:51:03.846947184 +0000
+@@ -1,13 +1,16 @@
+ package dev.eternalskies.nightfall.client.render;
+ 
++import com.mojang.blaze3d.vertex.PoseStack;
+ import dev.eternalskies.nightfall.EternalSkiesNightfall;
+ import dev.eternalskies.nightfall.client.NightfallClient;
+ import dev.eternalskies.nightfall.client.model.DuskbornModel;
+ import dev.eternalskies.nightfall.entity.DuskbornEntity;
++import net.minecraft.client.renderer.MultiBufferSource;
+ import net.minecraft.client.renderer.RenderType;
+ import net.minecraft.client.renderer.entity.EntityRendererProvider;
+ import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+-import net.minecraft.client.renderer.entity.layers.EyesLayer;
++import net.minecraft.client.renderer.entity.layers.RenderLayer;
++import net.minecraft.client.renderer.texture.OverlayTexture;
+ import net.minecraft.resources.ResourceLocation;
+ 
+ public final class DuskbornRenderer extends HumanoidMobRenderer<DuskbornEntity, DuskbornModel> {
+@@ -17,14 +20,30 @@
+         new ResourceLocation(EternalSkiesNightfall.MOD_ID, "textures/entity/duskborn_glow.png");
+ 
+     public DuskbornRenderer(EntityRendererProvider.Context context) {
+-        super(context, new DuskbornModel(context.bakeLayer(NightfallClient.DUSKBORN_LAYER)), 0.45F);
+-        this.addLayer(new EyesLayer<>(this) {
+-            private final RenderType renderType = RenderType.eyes(GLOW);
+-            @Override public RenderType renderType() { return renderType; }
++        super(context, new DuskbornModel(context.bakeLayer(NightfallClient.DUSKBORN_LAYER)), 0.42F);
++        this.addLayer(new RenderLayer<>(this) {
++            @Override
++            public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight,
++                               DuskbornEntity entity, float limbSwing, float limbSwingAmount,
++                               float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
++                // Vanilla EyesLayer remains visible on invisible mobs (e.g. spiders).
++                // Veil is supposed to be a true disappearance, so suppress every
++                // emissive pixel while the Duskborn is invisible.
++                if (entity.isInvisible() || entity.isVeiled()) return;
++                getParentModel().renderToBuffer(poseStack, buffer.getBuffer(RenderType.eyes(GLOW)),
++                    0xF000F0, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
++            }
+         });
+     }
+ 
+     @Override
++    protected void scale(DuskbornEntity entity, PoseStack poseStack, float partialTickTime) {
++        // Slightly tall/narrow proportions keep it elegant and separate it from
++        // the stock player silhouette without making it giant.
++        poseStack.scale(0.97F, 1.045F, 0.97F);
++    }
++
++    @Override
+     public ResourceLocation getTextureLocation(DuskbornEntity entity) {
+         return TEXTURE;
+     }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/render/StormlingRenderer.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/render/StormlingRenderer.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/render/StormlingRenderer.java	2026-08-17 22:08:33.360090822 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/render/StormlingRenderer.java	2026-08-17 22:47:51.204628642 +0000
+@@ -19,7 +19,7 @@
+         new ResourceLocation(EternalSkiesNightfall.MOD_ID, "textures/entity/stormling_glow.png");
+ 
+     public StormlingRenderer(EntityRendererProvider.Context context) {
+-        super(context, new StormlingModel(context.bakeLayer(NightfallClient.STORMLING_LAYER)), 0.45F);
++        super(context, new StormlingModel(context.bakeLayer(NightfallClient.STORMLING_LAYER)), 0.52F);
+         this.addLayer(new EyesLayer<>(this) {
+             private final RenderType renderType = RenderType.eyes(GLOW);
+             @Override public RenderType renderType() { return renderType; }
+@@ -29,8 +29,18 @@
+     @Override
+     protected void scale(StormlingEntity entity, PoseStack poseStack, float partialTick) {
+         float charge = entity.getFuseProgress();
+-        float pulse = 1.0F + charge * 0.05F * (1.0F + Mth.sin((entity.tickCount + partialTick) * 1.2F));
+-        poseStack.scale(pulse, pulse, pulse);
++        float time = entity.tickCount + partialTick;
++        float pulse = 1.0F + charge * (0.035F + 0.025F * Mth.sin(time * 1.45F));
++        // Slightly squat/wide shape matches the reference thunderhead silhouette.
++        poseStack.scale(1.05F * pulse, 0.98F * pulse, 1.05F * pulse);
++    }
++
++    @Override
++    protected float getWhiteOverlayProgress(StormlingEntity entity, float partialTicks) {
++        float fuse = entity.getFuseProgress();
++        if (fuse < 0.55F) return 0.0F;
++        float blink = Mth.sin((entity.tickCount + partialTicks) * (0.65F + fuse * 1.5F));
++        return blink > 0.15F ? Mth.clamp((fuse - 0.55F) / 0.45F, 0.0F, 1.0F) : 0.0F;
+     }
+ 
+     @Override
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java	2026-08-17 22:21:13.048508327 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java	2026-08-17 22:51:04.272828300 +0000
+@@ -1,6 +1,7 @@
+ package dev.eternalskies.nightfall.entity;
+ 
+ import dev.eternalskies.nightfall.registry.NightfallEntities;
++import dev.eternalskies.nightfall.registry.NightfallSounds;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.particles.ParticleTypes;
+ import net.minecraft.server.level.ServerLevel;
+@@ -115,6 +116,9 @@
+         }
+ 
+         if (this.meleeCooldown > 0) this.meleeCooldown--;
++        if (this.tickCount % 38 == Math.floorMod(this.getId(), 38) && this.getDeltaMovement().horizontalDistanceSqr() > 0.025D) {
++            this.playSound(NightfallSounds.DUSKBORN_FLAP.get(), 0.34F, 0.96F + this.getRandom().nextFloat() * 0.10F);
++        }
+         if (this.diveCooldown > 0) this.diveCooldown--;
+         if (this.boltCooldown > 0) this.boltCooldown--;
+         if (this.veilCooldown > 0) this.veilCooldown--;
+@@ -156,7 +160,7 @@
+         if (this.diveCooldown <= 0 && distance >= 3.0D && distance <= 9.0D) {
+             this.diveTicks = 18;
+             this.diveCooldown = 70 + this.getRandom().nextInt(55);
+-            this.playSound(SoundEvents.PHANTOM_FLAP, 0.75F, 1.20F);
++            this.playSound(NightfallSounds.DUSKBORN_FLAP.get(), 0.80F, 0.96F + this.getRandom().nextFloat() * 0.08F);

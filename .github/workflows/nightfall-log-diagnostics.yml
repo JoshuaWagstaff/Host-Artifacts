@@ -1,0 +1,37 @@
+name: Nightfall log diagnostics
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Fetch uploaded Minecraft logs
+        shell: bash
+        run: |
+          mkdir -p diagnostics
+          curl -fsSL https://api.mclo.gs/1/raw/OP0cLEM -o diagnostics/latest.log
+          curl -fsSL https://api.mclo.gs/1/raw/QK1LUFd -o diagnostics/crash-server.txt
+          curl -fsSL https://api.mclo.gs/1/raw/bXvzTOb -o diagnostics/launcher_log.txt
+          curl -fsSL https://api.mclo.gs/1/raw/KYEICol -o diagnostics/crash_assistant_app.log
+          curl -fsSL https://api.mclo.gs/1/raw/UljcY4H -o diagnostics/modlist.txt
+      - name: Print crash fingerprint
+        shell: bash
+        run: |
+          echo '=== crash report exception chain ==='
+          grep -n -E 'Description:|Exception|Caused by:|eternal_skies_nightfall|DuskRefuge|dusk_refuge|Biome|biome|Feature|feature' diagnostics/crash-server.txt | head -n 220 || true
+          echo '=== latest.log Nightfall/error tail ==='
+          grep -n -E 'ERROR|FATAL|Exception|Caused by:|eternal_skies_nightfall|dusk_refuge|DuskRefuge' diagnostics/latest.log | tail -n 260 || true
+          echo '=== Nightfall in mod list ==='
+          grep -ni -E 'nightfall|eternal.?skies|aether' diagnostics/modlist.txt | head -n 180 || true
+      - name: Upload raw diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightfall-runtime-crash-logs
+          path: diagnostics/*
+          if-no-files-found: error

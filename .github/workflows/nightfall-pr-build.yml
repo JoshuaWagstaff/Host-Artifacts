@@ -77,9 +77,23 @@ jobs:
           sed -i 's/import net.minecraft.world.entity.ai.goal.AvoidSunGoal;/import net.minecraft.world.entity.ai.goal.FleeSunGoal;/' "$FILE"
           sed -i 's/new AvoidSunGoal(this)/new FleeSunGoal(this, 1.05D)/' "$FILE"
           sed -i 's/return Mob.createMobAttributes()/return Zombie.createAttributes()/' "$FILE"
-          sed -i 's/mod_version=0.1.0-dev-k/mod_version=0.1.0-dev-l/' "$ROOT/gradle.properties"
           grep -nE 'createAttributes|Zombie.createAttributes|RestrictSunGoal|FleeSunGoal' "$FILE"
+
+      - name: Apply Nightfall 0.2A art overhaul
+        shell: bash
+        run: |
+          ROOT=nightfall-build/nightfall_01k
+          tar -xzf nightfall_02a_overlay.tgz -C "$ROOT"
+          test -f "$ROOT/src/main/java/dev/eternalskies/nightfall/client/DuskbornGlowLayer.java"
+          test -f "$ROOT/src/main/resources/assets/aether/models/item/vampire_blade.json"
           grep '^mod_version=' "$ROOT/gradle.properties"
+          python3 - <<'PY'
+          import json, pathlib
+          root = pathlib.Path('nightfall-build/nightfall_01k/src/main/resources')
+          for path in root.rglob('*.json'):
+              json.loads(path.read_text())
+          print('JSON validation passed')
+          PY
 
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k
@@ -88,6 +102,6 @@ jobs:
       - name: Upload Nightfall JAR
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.1L-forge-1.20.1
+          name: EternalSkies-Nightfall-0.2A-forge-1.20.1
           path: nightfall-build/nightfall_01k/build/libs/*.jar
           if-no-files-found: error

@@ -1,4 +1,4 @@
-name: Build Nightfall Reboot Art Pass
+name: Build Nightfall Reboot Refinement C
 
 on:
   pull_request:
@@ -42,25 +42,41 @@ jobs:
           test -f nightfall_reboot/build.gradle
           bash nightfall_reboot_payload/apply-fixes.sh
 
-      - name: Apply full model animation and sound-code art pass
+      - name: Apply reboot B model and sound foundation
         shell: bash
         run: |
           cat nightfall_art_payload/patch.gz.b64.00 nightfall_art_payload/patch.gz.b64.01 \
             | tr -d '[:space:]' | base64 -d | gzip -dc > /tmp/nightfall-artpass.patch
           patch --batch -p0 < /tmp/nightfall-artpass.patch
-          grep -q '0.1.0-reboot-b' nightfall_reboot/gradle.properties
           test -f nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java
 
-      - name: Generate hand-designed textures and original sound assets
+      - name: Generate Nightfall original sound foundation
         shell: bash
         run: |
           python3 -m pip install --disable-pip-version-check --quiet pillow numpy soundfile
           python3 nightfall_art_payload/paint_assets.py
           python3 nightfall_art_payload/make_sounds.py
-          test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png
-          test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity/stormling.png
           test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/sounds/mob/duskborn/veil1.ogg
           test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/sounds/mob/stormling/discharge.ogg
+
+      - name: Apply refinement C models textures balance and spawn ecology
+        shell: bash
+        run: |
+          cat \
+            nightfall_refine_c/part00.pyfrag \
+            nightfall_refine_c/part01.pyfrag \
+            nightfall_refine_c/part02.pyfrag \
+            nightfall_refine_c/part03.pyfrag \
+            nightfall_refine_c/part04.pyfrag \
+            nightfall_refine_c/part05_07.pyfrag \
+            nightfall_refine_c/part08_10.pyfrag \
+            > /tmp/apply_refine_c.py
+          python3 /tmp/apply_refine_c.py
+          grep -q '0.1.0-reboot-c' nightfall_reboot/gradle.properties
+          grep -q 'HierarchicalModel<DuskbornEntity>' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/model/DuskbornModel.java
+          grep -q 'AETHER_DARKNESS_MONSTER' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallEntities.java
+          test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png
+          test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity/stormling.png
 
       - name: Validate resource JSON
         shell: bash
@@ -79,20 +95,20 @@ jobs:
       - name: Package exact validated source
         shell: bash
         run: |
-          rm -f /tmp/EternalSkies-Nightfall-0.1.0-reboot-b-development-source.zip
+          rm -f /tmp/EternalSkies-Nightfall-0.1.0-reboot-c-development-source.zip
           cd nightfall_reboot
-          zip -qr /tmp/EternalSkies-Nightfall-0.1.0-reboot-b-development-source.zip . -x 'build/*' '.gradle/*'
+          zip -qr /tmp/EternalSkies-Nightfall-0.1.0-reboot-c-development-source.zip . -x 'build/*' '.gradle/*'
 
-      - name: Upload Nightfall art-pass JAR
+      - name: Upload Nightfall refinement C JAR
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.1.0-reboot-b-artpass-forge-1.20.1
+          name: EternalSkies-Nightfall-0.1.0-reboot-c-refined-forge-1.20.1
           path: nightfall_reboot/build/libs/*.jar
           if-no-files-found: error
 
       - name: Upload exact validated source
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.1.0-reboot-b-development-source
-          path: /tmp/EternalSkies-Nightfall-0.1.0-reboot-b-development-source.zip
+          name: EternalSkies-Nightfall-0.1.0-reboot-c-development-source
+          path: /tmp/EternalSkies-Nightfall-0.1.0-reboot-c-development-source.zip
           if-no-files-found: error

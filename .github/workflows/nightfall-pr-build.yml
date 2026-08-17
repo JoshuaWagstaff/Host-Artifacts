@@ -55,27 +55,27 @@ jobs:
             nightfall_payload/v2_15.txt \
             | tr -d '[:space:]' \
             | base64 -d > EternalSkies-Nightfall-0.1K-development-source.zip
-          echo "Transferred archive SHA256:"
-          sha256sum EternalSkies-Nightfall-0.1K-development-source.zip
           set +e
-          unzip -t EternalSkies-Nightfall-0.1K-development-source.zip
+          unzip -t EternalSkies-Nightfall-0.1K-development-source.zip >/tmp/nightfall-zip-test.log 2>&1
           ZIP_TEST=$?
+          cat /tmp/nightfall-zip-test.log
           set -e
-          if [ "$ZIP_TEST" -gt 1 ]; then
-            echo "ZIP CRC validation failed with a real archive error ($ZIP_TEST)."
-            exit "$ZIP_TEST"
-          fi
-          echo "All ZIP entries passed CRC; code $ZIP_TEST only reflects harmless header warnings."
+          if [ "$ZIP_TEST" -gt 1 ]; then exit "$ZIP_TEST"; fi
           rm -rf nightfall-build
           set +e
           unzip -q EternalSkies-Nightfall-0.1K-development-source.zip -d nightfall-build
           ZIP_EXTRACT=$?
           set -e
-          if [ "$ZIP_EXTRACT" -gt 1 ]; then
-            echo "ZIP extraction failed ($ZIP_EXTRACT)."
-            exit "$ZIP_EXTRACT"
-          fi
+          if [ "$ZIP_EXTRACT" -gt 1 ]; then exit "$ZIP_EXTRACT"; fi
           test -f nightfall-build/nightfall_01k/build.gradle
+
+      - name: Apply Forge 1.20.1 compatibility fixes
+        shell: bash
+        run: |
+          FILE=nightfall-build/nightfall_01k/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java
+          sed -i 's/import net.minecraft.world.entity.ai.goal.AvoidSunGoal;/import net.minecraft.world.entity.ai.goal.FleeSunGoal;/' "$FILE"
+          sed -i 's/new AvoidSunGoal(this)/new FleeSunGoal(this, 1.05D)/' "$FILE"
+          grep -nE 'RestrictSunGoal|FleeSunGoal' "$FILE"
 
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k

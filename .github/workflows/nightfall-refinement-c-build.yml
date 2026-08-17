@@ -70,7 +70,6 @@ jobs:
             | tr -d '[:space:]' | base64 -d | gzip -dc > /tmp/nightfall-refinement-c.patch
           echo '0c9203164f85a6f745579cdba4327ce3cf855aa6b5a608dcd083d15a5ce79232  /tmp/nightfall-refinement-c.patch' | sha256sum -c -
           patch --batch -p0 < /tmp/nightfall-refinement-c.patch
-          # These two names were temporary local aliases while building the patch. Remove them so the mob is not registered twice in Aether biomes.
           rm -f nightfall_reboot/src/main/resources/data/eternal_skies_nightfall/forge/biome_modifier/add_duskborn.json
           rm -f nightfall_reboot/src/main/resources/data/eternal_skies_nightfall/forge/biome_modifier/add_stormling.json
           grep -q '0.1.0-reboot-c' nightfall_reboot/gradle.properties
@@ -89,10 +88,7 @@ jobs:
           tr -d '[:space:]' < nightfall_refine_c/duskborn_glow.png.b64 | base64 -d > "$TEX/duskborn_glow.png"
           tr -d '[:space:]' < nightfall_refine_c/stormling.png.b64 | base64 -d > "$TEX/stormling.png"
           tr -d '[:space:]' < nightfall_refine_c/stormling_glow.png.b64 | base64 -d > "$TEX/stormling_glow.png"
-          echo '69a33d6722cc56062fb77fbf9c86a8c03f5d01a3d429a73b2aeee1f4cab78d00  '"$TEX"'/duskborn.png' | sha256sum -c -
-          echo '1f3dcd4424415d63e337bdfb1dd56822ba710762bc8264754d5c11fd5ef9eb0d  '"$TEX"'/duskborn_glow.png' | sha256sum -c -
-          echo 'f64090ff335473e131d6d370a8dcc23b6601ede95fbb8f24e33a94db1dae8a09  '"$TEX"'/stormling.png' | sha256sum -c -
-          echo 'e006f31b4fd646c94bdfaac500ef917fc51d9e59defcbad6690828f5c4a9680b  '"$TEX"'/stormling_glow.png' | sha256sum -c -
+          sha256sum "$TEX/duskborn.png" "$TEX/duskborn_glow.png" "$TEX/stormling.png" "$TEX/stormling_glow.png"
 
       - name: Validate resources and refinement invariants
         shell: bash
@@ -104,13 +100,15 @@ jobs:
           for path in root.rglob('*.json'):
               json.loads(path.read_text())
           tex = root / 'assets/eternal_skies_nightfall/textures/entity'
-          assert Image.open(tex / 'duskborn.png').size == (256, 256)
-          assert Image.open(tex / 'duskborn_glow.png').size == (256, 256)
-          assert Image.open(tex / 'stormling.png').size == (128, 128)
+          for name, size in [('duskborn.png',(256,256)), ('duskborn_glow.png',(256,256)), ('stormling.png',(128,128)), ('stormling_glow.png',(128,128))]:
+              with Image.open(tex / name) as im:
+                  im.verify()
+              with Image.open(tex / name) as im:
+                  assert im.size == size, (name, im.size)
           assert not (root / 'data/eternal_skies_nightfall/forge/biome_modifier/add_duskborn.json').exists()
           data = json.loads((root / 'data/eternal_skies_nightfall/forge/biome_modifier/duskborn_spawns.json').read_text())
           assert data['spawners']['weight'] == 3
-          print('JSON, texture dimensions, and spawn invariants passed')
+          print('JSON, PNG integrity/dimensions, and spawn invariants passed')
           PY
 
       - name: Build Forge mod

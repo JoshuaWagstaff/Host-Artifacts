@@ -83,7 +83,17 @@ jobs:
         shell: bash
         run: |
           ROOT=nightfall-build/nightfall_01k
-          tar -xzf nightfall_02a_overlay.tgz -C "$ROOT"
+          cp -a nightfall_02a_direct/. "$ROOT"/
+          mkdir -p "$ROOT/src/main/resources/assets/eternal_skies_nightfall/textures/entity"
+          cat \
+            nightfall_02a_chunks/duskborn.00 \
+            nightfall_02a_chunks/duskborn.01 \
+            nightfall_02a_chunks/duskborn.02 \
+            nightfall_02a_chunks/duskborn.03 \
+            nightfall_02a_chunks/duskborn.04 \
+            nightfall_02a_chunks/duskborn.05 \
+            > "$ROOT/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png"
+          echo '23550bb2c7a5fa22508997b0ba3ebbfe7ad2fe47b40d8f176a9319f8b8e35f92  '"$ROOT"'/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png' | sha256sum -c -
           test -f "$ROOT/src/main/java/dev/eternalskies/nightfall/client/DuskbornGlowLayer.java"
           test -f "$ROOT/src/main/resources/assets/aether/models/item/vampire_blade.json"
           grep '^mod_version=' "$ROOT/gradle.properties"

@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -25,7 +25,7 @@ jobs:
         with:
           gradle-version: '8.1.1'
 
-      - name: Reconstruct exact Nightfall source
+      - name: Reconstruct and validate Nightfall source
         shell: bash
         run: |
           cat \
@@ -55,8 +55,13 @@ jobs:
             nightfall_payload/v2_15.txt \
             | tr -d '[:space:]' \
             | base64 -d > EternalSkies-Nightfall-0.1K-development-source.zip
-          echo "bc2505644758464bf1b9c4f3e44447f03549a54d297f8cb4c8993ef50413b78f  EternalSkies-Nightfall-0.1K-development-source.zip" | sha256sum -c -
+          echo "Expected SHA256: bc2505644758464bf1b9c4f3e44447f03549a54d297f8cb4c8993ef50413b78f"
+          echo -n "Actual SHA256:   "
+          sha256sum EternalSkies-Nightfall-0.1K-development-source.zip | cut -d' ' -f1
+          unzip -t EternalSkies-Nightfall-0.1K-development-source.zip
+          rm -rf nightfall-build
           unzip -q EternalSkies-Nightfall-0.1K-development-source.zip -d nightfall-build
+          test -f nightfall-build/nightfall_01k/build.gradle
 
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k

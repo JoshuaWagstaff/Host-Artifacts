@@ -1,0 +1,1 @@
+Runtime refinement C payload for Eternal Skies: Nightfall. Focus: visible feathered Duskborn wings, 256x256 fine-detail Duskborn art, smoother/slower aerial combat, fairer Veil timing, reduced damage, and lower/anti-swarm spawning. Build-only payload; main remains untouched.

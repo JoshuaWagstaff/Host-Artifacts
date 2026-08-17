@@ -1,0 +1,234 @@
+             return;
+         }
+ 
+@@ -203,13 +207,13 @@
+         Vec3 aim = target.getEyePosition().subtract(bolt.position());
+         bolt.shoot(aim.x, aim.y, aim.z, 0.85F, 0.7F);
+         this.level().addFreshEntity(bolt);
+-        this.playSound(SoundEvents.EVOKER_CAST_SPELL, 0.65F, 1.35F);
++        this.playSound(NightfallSounds.DUSKBORN_BOLT.get(), 0.72F, 0.96F + this.getRandom().nextFloat() * 0.10F);
+     }
+ 
+     private void beginVeil() {
+         this.veilTicks = 26;
+         this.setInvisible(true);
+-        this.playSound(SoundEvents.ENDERMAN_TELEPORT, 0.65F, 1.45F);
++        this.playSound(NightfallSounds.DUSKBORN_VEIL.get(), 0.86F, 0.96F + this.getRandom().nextFloat() * 0.08F);
+         sendVeilParticles();
+     }
+ 
+@@ -242,7 +246,7 @@
+ 
+     private void sendVeilParticles() {
+         if (this.level() instanceof ServerLevel server) {
+-            server.sendParticles(ParticleTypes.WITCH,
++            server.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                 this.getX(), this.getY() + 1.0D, this.getZ(),
+                 24, 0.45D, 0.8D, 0.45D, 0.03D);
+             server.sendParticles(ParticleTypes.END_ROD,
+@@ -269,16 +273,16 @@
+ 
+     @Override
+     protected SoundEvent getAmbientSound() {
+-        return SoundEvents.ALLAY_AMBIENT_WITH_ITEM;
++        return NightfallSounds.DUSKBORN_AMBIENT.get();
+     }
+ 
+     @Override
+     protected SoundEvent getHurtSound(DamageSource source) {
+-        return SoundEvents.VEX_HURT;
++        return NightfallSounds.DUSKBORN_HURT.get();
+     }
+ 
+     @Override
+     protected SoundEvent getDeathSound() {
+-        return SoundEvents.VEX_DEATH;
++        return NightfallSounds.DUSKBORN_DEATH.get();
+     }
+ }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/entity/StormlingEntity.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/entity/StormlingEntity.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/entity/StormlingEntity.java	2026-08-17 22:21:13.048685039 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/entity/StormlingEntity.java	2026-08-17 22:50:21.541390982 +0000
+@@ -1,5 +1,7 @@
+ package dev.eternalskies.nightfall.entity;
+ 
++import dev.eternalskies.nightfall.registry.NightfallSounds;
++
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.particles.ParticleTypes;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+@@ -124,13 +126,13 @@
+         if (distance <= 4.15D && hasSight) {
+             int fuse = Math.min(MAX_FUSE, getFuse() + 1);
+             if (getFuse() == 0) {
+-                this.playSound(SoundEvents.RESPAWN_ANCHOR_CHARGE, 0.85F, 1.55F);
++                this.playSound(NightfallSounds.STORMLING_CHARGE.get(), 0.92F, 0.98F + this.getRandom().nextFloat() * 0.04F);
+             }
+             setFuse(fuse);
+             this.setDeltaMovement(this.getDeltaMovement().scale(0.72D));
+             if (fuse % 8 == 0) {
+-                this.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, 0.55F,
+-                    0.8F + (fuse / (float) MAX_FUSE) * 0.8F);
++                this.playSound(NightfallSounds.STORMLING_PULSE.get(), 0.58F,
++                    0.84F + (fuse / (float) MAX_FUSE) * 0.38F);
+             }
+             if (fuse >= MAX_FUSE) {
+                 discharge();
+@@ -190,8 +192,7 @@
+             this.getX(), this.getY() + 0.5D, this.getZ(), 70, 1.1D, 0.9D, 1.1D, 0.12D);
+         server.sendParticles(ParticleTypes.CLOUD,
+             this.getX(), this.getY() + 0.5D, this.getZ(), 36, 1.0D, 0.7D, 1.0D, 0.08D);
+-        this.playSound(SoundEvents.GENERIC_EXPLODE, 1.10F, 1.25F);
+-        this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 0.50F, 1.70F);
++        this.playSound(NightfallSounds.STORMLING_DISCHARGE.get(), 1.15F, 0.98F + this.getRandom().nextFloat() * 0.04F);
+ 
+         AABB area = this.getBoundingBox().inflate(radius);
+         List<LivingEntity> victims = server.getEntitiesOfClass(LivingEntity.class, area,
+@@ -235,16 +236,16 @@
+ 
+     @Override
+     protected SoundEvent getAmbientSound() {
+-        return SoundEvents.AMETHYST_BLOCK_RESONATE;
++        return NightfallSounds.STORMLING_AMBIENT.get();
+     }
+ 
+     @Override
+     protected SoundEvent getHurtSound(DamageSource source) {
+-        return SoundEvents.AMETHYST_BLOCK_BREAK;
++        return NightfallSounds.STORMLING_HURT.get();
+     }
+ 
+     @Override
+     protected SoundEvent getDeathSound() {
+-        return SoundEvents.GENERIC_EXPLODE;
++        return NightfallSounds.STORMLING_DEATH.get();
+     }
+ }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallEntities.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/registry/NightfallEntities.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallEntities.java	2026-08-17 22:01:04.273921243 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/registry/NightfallEntities.java	2026-08-17 22:51:04.272964843 +0000
+@@ -26,7 +26,7 @@
+ 
+     public static final RegistryObject<EntityType<StormlingEntity>> STORMLING = ENTITY_TYPES.register("stormling",
+         () -> EntityType.Builder.of(StormlingEntity::new, MobCategory.MONSTER)
+-            .sized(1.05F, 1.25F)
++            .sized(1.20F, 1.45F)
+             .clientTrackingRange(10)
+             .updateInterval(2)
+             .build(new ResourceLocation(EternalSkiesNightfall.MOD_ID, "stormling").toString()));
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java	1970-01-01 00:00:00.000000000 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java	2026-08-17 22:50:21.091218856 +0000
+@@ -0,0 +1,34 @@
++package dev.eternalskies.nightfall.registry;
++
++import dev.eternalskies.nightfall.EternalSkiesNightfall;
++import net.minecraft.resources.ResourceLocation;
++import net.minecraft.sounds.SoundEvent;
++import net.minecraftforge.registries.DeferredRegister;
++import net.minecraftforge.registries.ForgeRegistries;
++import net.minecraftforge.registries.RegistryObject;
++
++public final class NightfallSounds {
++    public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
++        DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, EternalSkiesNightfall.MOD_ID);
++
++    public static final RegistryObject<SoundEvent> DUSKBORN_AMBIENT = register("duskborn_ambient");
++    public static final RegistryObject<SoundEvent> DUSKBORN_HURT = register("duskborn_hurt");
++    public static final RegistryObject<SoundEvent> DUSKBORN_DEATH = register("duskborn_death");
++    public static final RegistryObject<SoundEvent> DUSKBORN_VEIL = register("duskborn_veil");
++    public static final RegistryObject<SoundEvent> DUSKBORN_BOLT = register("duskborn_bolt");
++    public static final RegistryObject<SoundEvent> DUSKBORN_FLAP = register("duskborn_flap");
++
++    public static final RegistryObject<SoundEvent> STORMLING_AMBIENT = register("stormling_ambient");
++    public static final RegistryObject<SoundEvent> STORMLING_HURT = register("stormling_hurt");
++    public static final RegistryObject<SoundEvent> STORMLING_DEATH = register("stormling_death");
++    public static final RegistryObject<SoundEvent> STORMLING_CHARGE = register("stormling_charge");
++    public static final RegistryObject<SoundEvent> STORMLING_PULSE = register("stormling_pulse");
++    public static final RegistryObject<SoundEvent> STORMLING_DISCHARGE = register("stormling_discharge");
++
++    private NightfallSounds() {}
++
++    private static RegistryObject<SoundEvent> register(String name) {
++        ResourceLocation id = new ResourceLocation(EternalSkiesNightfall.MOD_ID, name);
++        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));
++    }
++}
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/lang/en_us.json nightfall_reboot_artpass/src/main/resources/assets/eternal_skies_nightfall/lang/en_us.json
+--- nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/lang/en_us.json	2026-08-17 22:09:11.198801748 +0000
++++ nightfall_reboot_artpass/src/main/resources/assets/eternal_skies_nightfall/lang/en_us.json	2026-08-17 22:50:22.131474534 +0000
+@@ -5,5 +5,15 @@
+   "item.eternal_skies_nightfall.dusk_shard": "Dusk Shard",
+   "item.eternal_skies_nightfall.storm_core": "Storm Core",
+   "item.eternal_skies_nightfall.duskborn_spawn_egg": "Duskborn Spawn Egg",
+-  "item.eternal_skies_nightfall.stormling_spawn_egg": "Stormling Spawn Egg"
++  "item.eternal_skies_nightfall.stormling_spawn_egg": "Stormling Spawn Egg",
++  "subtitles.eternal_skies_nightfall.duskborn_ambient": "Duskborn murmurs",
++  "subtitles.eternal_skies_nightfall.duskborn_hurt": "Duskborn recoils",
++  "subtitles.eternal_skies_nightfall.duskborn_death": "Duskborn fades",
++  "subtitles.eternal_skies_nightfall.duskborn_veil": "Duskborn slips into the veil",
++  "subtitles.eternal_skies_nightfall.duskborn_bolt": "Dusk magic crackles",
++  "subtitles.eternal_skies_nightfall.stormling_ambient": "Stormling rumbles",
++  "subtitles.eternal_skies_nightfall.stormling_hurt": "Stormling crackles",
++  "subtitles.eternal_skies_nightfall.stormling_death": "Stormling collapses",
++  "subtitles.eternal_skies_nightfall.stormling_charge": "Stormling overloads",
++  "subtitles.eternal_skies_nightfall.stormling_discharge": "Stormling discharges"
+ }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/sounds.json nightfall_reboot_artpass/src/main/resources/assets/eternal_skies_nightfall/sounds.json
+--- nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/sounds.json	1970-01-01 00:00:00.000000000 +0000
++++ nightfall_reboot_artpass/src/main/resources/assets/eternal_skies_nightfall/sounds.json	2026-08-17 22:50:21.693384491 +0000
+@@ -0,0 +1,72 @@
++{
++  "duskborn_ambient": {
++    "subtitle": "subtitles.eternal_skies_nightfall.duskborn_ambient",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/duskborn/ambient1","volume":0.72,"pitch":0.98},
++      {"name":"eternal_skies_nightfall:mob/duskborn/ambient2","volume":0.70,"pitch":1.02}
++    ]
++  },
++  "duskborn_hurt": {
++    "subtitle": "subtitles.eternal_skies_nightfall.duskborn_hurt",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/duskborn/hurt1","volume":0.82},
++      {"name":"eternal_skies_nightfall:mob/duskborn/hurt2","volume":0.82}
++    ]
++  },
++  "duskborn_death": {
++    "subtitle": "subtitles.eternal_skies_nightfall.duskborn_death",
++    "sounds": [{"name":"eternal_skies_nightfall:mob/duskborn/death","volume":0.92}]
++  },
++  "duskborn_veil": {
++    "subtitle": "subtitles.eternal_skies_nightfall.duskborn_veil",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/duskborn/veil1","volume":0.92},
++      {"name":"eternal_skies_nightfall:mob/duskborn/veil2","volume":0.92}
++    ]
++  },
++  "duskborn_bolt": {
++    "subtitle": "subtitles.eternal_skies_nightfall.duskborn_bolt",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/duskborn/bolt1","volume":0.84},
++      {"name":"eternal_skies_nightfall:mob/duskborn/bolt2","volume":0.84}
++    ]
++  },
++  "duskborn_flap": {
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/duskborn/flap1","volume":0.62},
++      {"name":"eternal_skies_nightfall:mob/duskborn/flap2","volume":0.62}
++    ]
++  },
++  "stormling_ambient": {
++    "subtitle": "subtitles.eternal_skies_nightfall.stormling_ambient",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/stormling/ambient1","volume":0.70},
++      {"name":"eternal_skies_nightfall:mob/stormling/ambient2","volume":0.70}
++    ]
++  },
++  "stormling_hurt": {
++    "subtitle": "subtitles.eternal_skies_nightfall.stormling_hurt",
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/stormling/hurt1","volume":0.84},
++      {"name":"eternal_skies_nightfall:mob/stormling/hurt2","volume":0.84}
++    ]
++  },
++  "stormling_death": {

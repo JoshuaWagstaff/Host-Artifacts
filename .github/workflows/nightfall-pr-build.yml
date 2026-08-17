@@ -110,8 +110,35 @@ jobs:
           ROOT=nightfall-build/nightfall_01k
           cp nightfall_02b_patch/DuskRefugeFeature.java "$ROOT/src/main/java/dev/eternalskies/nightfall/world/DuskRefugeFeature.java"
           sed -i 's/^mod_version=.*/mod_version=0.2.0-dev-b/' "$ROOT/gradle.properties"
-          grep '^mod_version=' "$ROOT/gradle.properties"
-          grep -nE 'Heightmap|surfaceY|Math.abs\(sampleY - centerY\)' "$ROOT/src/main/java/dev/eternalskies/nightfall/world/DuskRefugeFeature.java"
+
+      - name: Apply Nightfall 0.2C overhaul
+        shell: bash
+        run: |
+          ROOT=nightfall-build/nightfall_01k
+          cat \
+            nightfall_02c_overlay/part00.b64 \
+            nightfall_02c_overlay/part01.b64 \
+            nightfall_02c_overlay/part02.b64 \
+            nightfall_02c_overlay/part03.b64 \
+            nightfall_02c_overlay/part04.b64 \
+            nightfall_02c_overlay/part05.b64 \
+            nightfall_02c_overlay/part06.b64 \
+            nightfall_02c_overlay/part07.b64 \
+            | tr -d '[:space:]' | base64 -d > /tmp/nightfall_02c_overlay.zip
+          echo '3dd6e79b60846d852d2ecd218c0ae8513b7b3bf1cc6c6933052e19903ea34395  /tmp/nightfall_02c_overlay.zip' | sha256sum -c -
+          unzip -q -o /tmp/nightfall_02c_overlay.zip -d "$ROOT"
+          grep '^mod_version=0.2.0-dev-c$' "$ROOT/gradle.properties"
+          grep -n '"weight": 12' "$ROOT/src/main/resources/data/eternal_skies_nightfall/forge/biome_modifier/duskborn_spawns.json"
+          test -f "$ROOT/src/main/java/dev/eternalskies/nightfall/menu/DuskAltarMenu.java"
+          test -f "$ROOT/src/main/java/dev/eternalskies/nightfall/effect/DuskblightEffect.java"
+          test -f "$ROOT/src/main/resources/data/eternal_skies_nightfall/loot_tables/chests/dusk_coven.json"
+          python3 - <<'PY'
+          import json, pathlib
+          root = pathlib.Path('nightfall-build/nightfall_01k/src/main/resources')
+          for path in root.rglob('*.json'):
+              json.loads(path.read_text())
+          print('0.2C JSON validation passed')
+          PY
 
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k
@@ -120,6 +147,6 @@ jobs:
       - name: Upload Nightfall JAR
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.2B-forge-1.20.1
+          name: EternalSkies-Nightfall-0.2C-forge-1.20.1
           path: nightfall-build/nightfall_01k/build/libs/*.jar
           if-no-files-found: error

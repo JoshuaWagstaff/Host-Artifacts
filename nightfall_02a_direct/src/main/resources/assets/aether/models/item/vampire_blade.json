@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "aether:item/weapons/vampire_blade"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "eternal_skies_nightfall:duskbound": 1.0
+      },
+      "model": "eternal_skies_nightfall:item/duskbound_vampire_blade"
+    }
+  ]
+}

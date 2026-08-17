@@ -1,0 +1,33 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "eternal_skies_nightfall:block/dusk_altar_stone",
+    "stone": "eternal_skies_nightfall:block/dusk_altar_stone",
+    "trim": "eternal_skies_nightfall:block/dusk_altar_trim",
+    "crystal": "eternal_skies_nightfall:block/dusk_altar_crystal",
+    "core": "eternal_skies_nightfall:block/dusk_altar_core",
+    "gold": "eternal_skies_nightfall:block/nightfall_gold"
+  },
+  "elements": [
+    {"from":[0,0,0],"to":[16,2,16],"faces":{"down":{"texture":"#stone"},"up":{"texture":"#stone"},"north":{"texture":"#stone"},"south":{"texture":"#stone"},"west":{"texture":"#stone"},"east":{"texture":"#stone"}}},
+    {"from":[1,2,1],"to":[15,4,15],"faces":{"down":{"texture":"#trim"},"up":{"texture":"#stone"},"north":{"texture":"#trim"},"south":{"texture":"#trim"},"west":{"texture":"#trim"},"east":{"texture":"#trim"}}},
+    {"from":[3,4,3],"to":[13,5,13],"faces":{"down":{"texture":"#trim"},"up":{"texture":"#stone"},"north":{"texture":"#gold"},"south":{"texture":"#gold"},"west":{"texture":"#gold"},"east":{"texture":"#gold"}}},
+    {"from":[5,5,5],"to":[11,5.75,11],"faces":{"down":{"texture":"#core"},"up":{"texture":"#core"},"north":{"texture":"#core"},"south":{"texture":"#core"},"west":{"texture":"#core"},"east":{"texture":"#core"}}},
+    {"from":[1,4,1],"to":[4,8,4],"faces":{"down":{"texture":"#stone"},"up":{"texture":"#gold"},"north":{"texture":"#trim"},"south":{"texture":"#trim"},"west":{"texture":"#trim"},"east":{"texture":"#trim"}}},
+    {"from":[12,4,1],"to":[15,8,4],"faces":{"down":{"texture":"#stone"},"up":{"texture":"#gold"},"north":{"texture":"#trim"},"south":{"texture":"#trim"},"west":{"texture":"#trim"},"east":{"texture":"#trim"}}},
+    {"from":[1,4,12],"to":[4,8,15],"faces":{"down":{"texture":"#stone"},"up":{"texture":"#gold"},"north":{"texture":"#trim"},"south":{"texture":"#trim"},"west":{"texture":"#trim"},"east":{"texture":"#trim"}}},
+    {"from":[12,4,12],"to":[15,8,15],"faces":{"down":{"texture":"#stone"},"up":{"texture":"#gold"},"north":{"texture":"#trim"},"south":{"texture":"#trim"},"west":{"texture":"#trim"},"east":{"texture":"#trim"}}},
+    {"from":[1.5,8,1.5],"to":[3.5,11,3.5],"rotation":{"origin":[2.5,8,2.5],"axis":"y","angle":45},"faces":{"down":{"texture":"#crystal"},"up":{"texture":"#crystal"},"north":{"texture":"#crystal"},"south":{"texture":"#crystal"},"west":{"texture":"#crystal"},"east":{"texture":"#crystal"}}},
+    {"from":[12.5,8,1.5],"to":[14.5,11,3.5],"rotation":{"origin":[13.5,8,2.5],"axis":"y","angle":-45},"faces":{"down":{"texture":"#crystal"},"up":{"texture":"#crystal"},"north":{"texture":"#crystal"},"south":{"texture":"#crystal"},"west":{"texture":"#crystal"},"east":{"texture":"#crystal"}}},
+    {"from":[1.5,8,12.5],"to":[3.5,11,14.5],"rotation":{"origin":[2.5,8,13.5],"axis":"y","angle":-45},"faces":{"down":{"texture":"#crystal"},"up":{"texture":"#crystal"},"north":{"texture":"#crystal"},"south":{"texture":"#crystal"},"west":{"texture":"#crystal"},"east":{"texture":"#crystal"}}},
+    {"from":[12.5,8,12.5],"to":[14.5,11,14.5],"rotation":{"origin":[13.5,8,13.5],"axis":"y","angle":45},"faces":{"down":{"texture":"#crystal"},"up":{"texture":"#crystal"},"north":{"texture":"#crystal"},"south":{"texture":"#crystal"},"west":{"texture":"#crystal"},"east":{"texture":"#crystal"}}},
+    {"from":[6.5,5.8,2.0],"to":[9.5,6.3,4.7],"faces":{"down":{"texture":"#gold"},"up":{"texture":"#gold"},"north":{"texture":"#gold"},"south":{"texture":"#gold"},"west":{"texture":"#gold"},"east":{"texture":"#gold"}}},
+    {"from":[6.5,5.8,11.3],"to":[9.5,6.3,14.0],"faces":{"down":{"texture":"#gold"},"up":{"texture":"#gold"},"north":{"texture":"#gold"},"south":{"texture":"#gold"},"west":{"texture":"#gold"},"east":{"texture":"#gold"}}},
+    {"from":[2.0,5.8,6.5],"to":[4.7,6.3,9.5],"faces":{"down":{"texture":"#gold"},"up":{"texture":"#gold"},"north":{"texture":"#gold"},"south":{"texture":"#gold"},"west":{"texture":"#gold"},"east":{"texture":"#gold"}}},
+    {"from":[11.3,5.8,6.5],"to":[14.0,6.3,9.5],"faces":{"down":{"texture":"#gold"},"up":{"texture":"#gold"},"north":{"texture":"#gold"},"south":{"texture":"#gold"},"west":{"texture":"#gold"},"east":{"texture":"#gold"}}}
+  ],
+  "display": {
+    "gui": {"rotation":[30,225,0],"translation":[0,0,0],"scale":[0.72,0.72,0.72]},
+    "ground":{"translation":[0,3,0],"scale":[0.45,0.45,0.45]}
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "eternal_skies_nightfall:item/duskbound_vampire_blade"
+  }
+}

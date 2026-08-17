@@ -1,0 +1,18 @@
++    "subtitle": "subtitles.eternal_skies_nightfall.stormling_death",
++    "sounds": [{"name":"eternal_skies_nightfall:mob/stormling/death","volume":0.94}]
++  },
++  "stormling_charge": {
++    "subtitle": "subtitles.eternal_skies_nightfall.stormling_charge",
++    "sounds": [{"name":"eternal_skies_nightfall:mob/stormling/charge","volume":0.96}]
++  },
++  "stormling_pulse": {
++    "sounds": [
++      {"name":"eternal_skies_nightfall:mob/stormling/pulse1","volume":0.62},
++      {"name":"eternal_skies_nightfall:mob/stormling/pulse2","volume":0.62}
++    ]
++  },
++  "stormling_discharge": {
++    "subtitle": "subtitles.eternal_skies_nightfall.stormling_discharge",
++    "sounds": [{"name":"eternal_skies_nightfall:mob/stormling/discharge","volume":1.0}]
++  }
++}

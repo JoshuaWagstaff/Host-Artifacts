@@ -1,0 +1,219 @@
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/gradle.properties nightfall_reboot_artpass/gradle.properties
+--- nightfall_reboot/gradle.properties	2026-08-17 22:00:50.786951500 +0000
++++ nightfall_reboot_artpass/gradle.properties	2026-08-17 22:47:51.205639848 +0000
+@@ -4,5 +4,5 @@
+ forge_version=47.4.10
+ mod_id=eternal_skies_nightfall
+ mod_name=Eternal Skies: Nightfall
+-mod_version=0.1.0-reboot-a
++mod_version=0.1.0-reboot-b
+ mod_group_id=dev.eternalskies
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/EternalSkiesNightfall.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/EternalSkiesNightfall.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/EternalSkiesNightfall.java	2026-08-17 22:01:04.272317962 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/EternalSkiesNightfall.java	2026-08-17 22:50:21.541011819 +0000
+@@ -2,6 +2,7 @@
+ 
+ import dev.eternalskies.nightfall.registry.NightfallEntities;
+ import dev.eternalskies.nightfall.registry.NightfallItems;
++import dev.eternalskies.nightfall.registry.NightfallSounds;
+ import net.minecraftforge.eventbus.api.IEventBus;
+ import net.minecraftforge.fml.common.Mod;
+ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+@@ -14,5 +15,6 @@
+         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+         NightfallEntities.ENTITY_TYPES.register(modBus);
+         NightfallItems.ITEMS.register(modBus);
++        NightfallSounds.SOUND_EVENTS.register(modBus);
+     }
+ }
+diff -ruN '--exclude=textures' '--exclude=sounds' '--exclude=build' '--exclude=.gradle' nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/model/DuskbornModel.java nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/model/DuskbornModel.java
+--- nightfall_reboot/src/main/java/dev/eternalskies/nightfall/client/model/DuskbornModel.java	2026-08-17 22:08:33.358283318 +0000
++++ nightfall_reboot_artpass/src/main/java/dev/eternalskies/nightfall/client/model/DuskbornModel.java	2026-08-17 22:47:51.202958472 +0000
+@@ -11,47 +11,214 @@
+ import net.minecraft.client.model.geom.builders.PartDefinition;
+ import net.minecraft.util.Mth;
+ 
++/**
++ * Purpose-built Duskborn model. The first reboot prototype used a stock humanoid
++ * with two rectangular slabs for wings. This model keeps the readable humanoid
++ * proportions but gives the Duskborn its own silhouette: narrow celestial frame,
++ * layered robe, pointed ears, swept hair, pauldrons, segmented broken wings and
++ * a floating fractured halo.
++ */
+ public final class DuskbornModel extends HumanoidModel<DuskbornEntity> {
+-    private final ModelPart leftWing;
+-    private final ModelPart rightWing;
++    private final ModelPart leftWingRoot;
++    private final ModelPart rightWingRoot;
++    private final ModelPart leftWingMid;
++    private final ModelPart rightWingMid;
++    private final ModelPart leftWingTip;
++    private final ModelPart rightWingTip;
+     private final ModelPart halo;
++    private final ModelPart frontRobe;
++    private final ModelPart backRobe;
++    private final ModelPart leftRobe;
++    private final ModelPart rightRobe;
++    private final ModelPart hairLeft;
++    private final ModelPart hairRight;
+ 
+     public DuskbornModel(ModelPart root) {
+         super(root);
+-        this.leftWing = root.getChild("left_wing");
+-        this.rightWing = root.getChild("right_wing");
++        this.leftWingRoot = root.getChild("left_wing_root");
++        this.rightWingRoot = root.getChild("right_wing_root");
++        this.leftWingMid = this.leftWingRoot.getChild("mid");
++        this.rightWingMid = this.rightWingRoot.getChild("mid");
++        this.leftWingTip = this.leftWingMid.getChild("tip");
++        this.rightWingTip = this.rightWingMid.getChild("tip");
+         this.halo = root.getChild("halo");
++        this.frontRobe = this.body.getChild("front_robe");
++        this.backRobe = this.body.getChild("back_robe");
++        this.leftRobe = this.body.getChild("left_robe");
++        this.rightRobe = this.body.getChild("right_robe");
++        this.hairLeft = this.head.getChild("hair_left");
++        this.hairRight = this.head.getChild("hair_right");
+     }
+ 
+     public static LayerDefinition createBodyLayer() {
+-        MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
++        MeshDefinition mesh = new MeshDefinition();
+         PartDefinition root = mesh.getRoot();
+ 
+-        root.addOrReplaceChild("left_wing",
+-            CubeListBuilder.create()
+-                .texOffs(64, 0).addBox(0.0F, -2.0F, -0.5F, 11.0F, 18.0F, 1.0F)
+-                .texOffs(64, 20).addBox(5.0F, 10.0F, -0.25F, 9.0F, 13.0F, 1.0F),
+-            PartPose.offset(2.5F, 3.0F, 2.2F));
+-
+-        root.addOrReplaceChild("right_wing",
+-            CubeListBuilder.create().mirror()
+-                .texOffs(64, 0).addBox(-11.0F, -2.0F, -0.5F, 11.0F, 18.0F, 1.0F)
+-                .texOffs(64, 20).addBox(-14.0F, 10.0F, -0.25F, 9.0F, 13.0F, 1.0F),
+-            PartPose.offset(-2.5F, 3.0F, 2.2F));
++        PartDefinition head = root.addOrReplaceChild("head",
++            CubeListBuilder.create().texOffs(0, 0)
++                .addBox(-3.5F, -8.0F, -3.5F, 7.0F, 8.0F, 7.0F),
++            PartPose.offset(0.0F, 0.0F, 0.0F));
+ 
+-        PartDefinition halo = root.addOrReplaceChild("halo", CubeListBuilder.create(), PartPose.offset(0.0F, -7.2F, 0.0F));
++        // Hair shell plus distinct side locks make the head read as a character,
++        // rather than a re-skinned Steve head.
++        root.addOrReplaceChild("hat",
++            CubeListBuilder.create().texOffs(32, 0)
++                .addBox(-3.5F, -8.15F, -3.5F, 7.0F, 8.0F, 7.0F, new CubeDeformation(0.28F)),
++            PartPose.ZERO);
++
++        head.addOrReplaceChild("left_ear",
++            CubeListBuilder.create().texOffs(64, 0)
++                .addBox(0.0F, -1.0F, -1.0F, 4.0F, 2.0F, 2.0F),
++            PartPose.offsetAndRotation(3.2F, -4.2F, 0.0F, 0.0F, -0.30F, -0.12F));
++        head.addOrReplaceChild("right_ear",
++            CubeListBuilder.create().texOffs(64, 4).mirror()
++                .addBox(-4.0F, -1.0F, -1.0F, 4.0F, 2.0F, 2.0F),
++            PartPose.offsetAndRotation(-3.2F, -4.2F, 0.0F, 0.0F, 0.30F, 0.12F));
++
++        head.addOrReplaceChild("hair_left",
++            CubeListBuilder.create().texOffs(76, 0)
++                .addBox(-0.75F, 0.0F, -0.75F, 2.0F, 7.0F, 2.0F),
++            PartPose.offsetAndRotation(3.15F, -5.6F, 1.4F, 0.08F, 0.0F, -0.12F));
++        head.addOrReplaceChild("hair_right",
++            CubeListBuilder.create().texOffs(84, 0)
++                .addBox(-1.25F, 0.0F, -0.75F, 2.0F, 7.0F, 2.0F),
++            PartPose.offsetAndRotation(-3.15F, -5.6F, 1.4F, 0.08F, 0.0F, 0.12F));
++        head.addOrReplaceChild("hair_back",
++            CubeListBuilder.create().texOffs(92, 0)
++                .addBox(-2.5F, 0.0F, -1.0F, 5.0F, 7.0F, 2.0F),
++            PartPose.offsetAndRotation(0.0F, -5.5F, 3.1F, 0.12F, 0.0F, 0.0F));
++
++        PartDefinition body = root.addOrReplaceChild("body",
++            CubeListBuilder.create().texOffs(0, 20)
++                .addBox(-3.5F, 0.0F, -2.0F, 7.0F, 11.0F, 4.0F),
++            PartPose.ZERO);
++
++        body.addOrReplaceChild("collar",
++            CubeListBuilder.create().texOffs(26, 20)
++                .addBox(-4.1F, -1.0F, -2.6F, 8.2F, 3.0F, 5.2F, new CubeDeformation(0.05F)),
++            PartPose.ZERO);
++        body.addOrReplaceChild("chest_gem",
++            CubeListBuilder.create().texOffs(54, 20)
++                .addBox(-1.5F, -1.5F, -0.55F, 3.0F, 3.0F, 1.0F),
++            PartPose.offsetAndRotation(0.0F, 4.0F, -2.15F, 0.0F, 0.0F, 0.7854F));
++
++        body.addOrReplaceChild("front_robe",
++            CubeListBuilder.create().texOffs(0, 40)
++                .addBox(-2.7F, 0.0F, -0.45F, 5.4F, 11.0F, 1.0F),
++            PartPose.offsetAndRotation(0.0F, 9.5F, -2.1F, 0.05F, 0.0F, 0.0F));
++        body.addOrReplaceChild("back_robe",
++            CubeListBuilder.create().texOffs(16, 40)
++                .addBox(-3.0F, 0.0F, -0.45F, 6.0F, 12.0F, 1.0F),
++            PartPose.offsetAndRotation(0.0F, 9.0F, 2.1F, -0.07F, 0.0F, 0.0F));
++        body.addOrReplaceChild("left_robe",
++            CubeListBuilder.create().texOffs(32, 40)
++                .addBox(-0.45F, 0.0F, -2.0F, 1.0F, 10.0F, 4.0F),
++            PartPose.offsetAndRotation(3.45F, 9.4F, 0.0F, 0.0F, 0.0F, -0.04F));
++        body.addOrReplaceChild("right_robe",
++            CubeListBuilder.create().texOffs(42, 40)
++                .addBox(-0.55F, 0.0F, -2.0F, 1.0F, 10.0F, 4.0F),
++            PartPose.offsetAndRotation(-3.45F, 9.4F, 0.0F, 0.0F, 0.0F, 0.04F));
++
++        PartDefinition rightArm = root.addOrReplaceChild("right_arm",
++            CubeListBuilder.create().texOffs(0, 56)
++                .addBox(-3.0F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F),
++            PartPose.offset(-4.7F, 2.0F, 0.0F));
++        PartDefinition leftArm = root.addOrReplaceChild("left_arm",
++            CubeListBuilder.create().texOffs(14, 56).mirror()
++                .addBox(0.0F, -2.0F, -1.5F, 3.0F, 12.0F, 3.0F),
++            PartPose.offset(4.7F, 2.0F, 0.0F));
++
++        rightArm.addOrReplaceChild("pauldron",
++            CubeListBuilder.create().texOffs(28, 56)
++                .addBox(-3.4F, -2.6F, -2.3F, 4.5F, 4.0F, 4.6F),
++            PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.10F));
++        leftArm.addOrReplaceChild("pauldron",
++            CubeListBuilder.create().texOffs(48, 56).mirror()
++                .addBox(-1.1F, -2.6F, -2.3F, 4.5F, 4.0F, 4.6F),
++            PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.10F));
++        rightArm.addOrReplaceChild("bracer",
++            CubeListBuilder.create().texOffs(68, 56)
++                .addBox(-3.15F, 4.0F, -1.7F, 3.3F, 4.0F, 3.4F), PartPose.ZERO);
++        leftArm.addOrReplaceChild("bracer",
++            CubeListBuilder.create().texOffs(84, 56).mirror()
++                .addBox(-0.15F, 4.0F, -1.7F, 3.3F, 4.0F, 3.4F), PartPose.ZERO);
++
++        PartDefinition rightLeg = root.addOrReplaceChild("right_leg",
++            CubeListBuilder.create().texOffs(0, 76)
++                .addBox(-1.7F, 0.0F, -1.5F, 3.2F, 12.0F, 3.0F),
++            PartPose.offset(-1.8F, 12.0F, 0.0F));
++        PartDefinition leftLeg = root.addOrReplaceChild("left_leg",
++            CubeListBuilder.create().texOffs(14, 76).mirror()
++                .addBox(-1.5F, 0.0F, -1.5F, 3.2F, 12.0F, 3.0F),
++            PartPose.offset(1.8F, 12.0F, 0.0F));
++        rightLeg.addOrReplaceChild("greave",
++            CubeListBuilder.create().texOffs(28, 76)
++                .addBox(-1.95F, 5.0F, -1.75F, 3.7F, 6.8F, 3.5F), PartPose.ZERO);
++        leftLeg.addOrReplaceChild("greave",
++            CubeListBuilder.create().texOffs(46, 76).mirror()
++                .addBox(-1.75F, 5.0F, -1.75F, 3.7F, 6.8F, 3.5F), PartPose.ZERO);
++
++        // Broken celestial wings: each wing is a three-link chain with separate
++        // feather fingers. This keeps the silhouette ragged and lets animation
++        // propagate naturally from shoulder -> mid -> tip.
++        PartDefinition leftWingRoot = root.addOrReplaceChild("left_wing_root",
++            CubeListBuilder.create().texOffs(0, 96)
++                .addBox(0.0F, -1.5F, -0.55F, 5.0F, 11.0F, 1.1F),
++            PartPose.offsetAndRotation(2.3F, 2.2F, 2.3F, 0.05F, -0.52F, -0.24F));
++        PartDefinition leftMid = leftWingRoot.addOrReplaceChild("mid",
++            CubeListBuilder.create().texOffs(16, 96)
++                .addBox(0.0F, -1.0F, -0.50F, 8.0F, 13.0F, 1.0F),
++            PartPose.offsetAndRotation(3.8F, 6.5F, 0.0F, -0.05F, -0.24F, -0.44F));
++        PartDefinition leftTip = leftMid.addOrReplaceChild("tip",
++            CubeListBuilder.create().texOffs(38, 96)
++                .addBox(0.0F, -0.75F, -0.45F, 8.0F, 11.0F, 0.9F),
++            PartPose.offsetAndRotation(6.2F, 8.5F, 0.0F, 0.04F, -0.18F, -0.32F));
++        leftTip.addOrReplaceChild("feather_a",
++            CubeListBuilder.create().texOffs(60, 96).addBox(0.0F, 0.0F, -0.35F, 2.0F, 10.0F, 0.7F),
++            PartPose.offsetAndRotation(5.2F, 5.8F, 0.0F, 0.0F, 0.0F, -0.22F));
++        leftTip.addOrReplaceChild("feather_b",
++            CubeListBuilder.create().texOffs(66, 96).addBox(0.0F, 0.0F, -0.35F, 2.0F, 8.0F, 0.7F),

@@ -1,0 +1,72 @@
+name: Build Nightfall test JAR
+
+on:
+  push:
+    branches:
+      - nightfall-build-temp
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out build branch
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 8.1.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.1.1'
+
+      - name: Reconstruct exact Nightfall source
+        shell: bash
+        run: |
+          cat \
+            nightfall_payload/part00.txt \
+            nightfall_payload/part01.txt \
+            nightfall_payload/part02.txt \
+            nightfall_payload/part03.txt \
+            nightfall_payload/part04.txt \
+            nightfall_payload/part05.txt \
+            nightfall_payload/part06.txt \
+            nightfall_payload/part07.txt \
+            nightfall_payload/v2_00.txt \
+            nightfall_payload/v2_01.txt \
+            nightfall_payload/v2_02.txt \
+            nightfall_payload/v2_03.txt \
+            nightfall_payload/v2_04.txt \
+            nightfall_payload/v2_05.txt \
+            nightfall_payload/v2_06.txt \
+            nightfall_payload/v2_07.txt \
+            nightfall_payload/v2_08.txt \
+            nightfall_payload/v2_09.txt \
+            nightfall_payload/v2_10.txt \
+            nightfall_payload/v2_11.txt \
+            nightfall_payload/v2_12.txt \
+            nightfall_payload/v2_13.txt \
+            nightfall_payload/v2_14.txt \
+            nightfall_payload/v2_15.txt \
+            | tr -d '[:space:]' \
+            | base64 -d > EternalSkies-Nightfall-0.1K-development-source.zip
+          echo "bc2505644758464bf1b9c4f3e44447f03549a54d297f8cb4c8993ef50413b78f  EternalSkies-Nightfall-0.1K-development-source.zip" | sha256sum -c -
+          unzip -q EternalSkies-Nightfall-0.1K-development-source.zip -d nightfall-build
+          test -f nightfall-build/nightfall_01k/build.gradle
+
+      - name: Build Forge mod
+        working-directory: nightfall-build/nightfall_01k
+        run: gradle --no-daemon --stacktrace clean build
+
+      - name: Upload Nightfall JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: EternalSkies-Nightfall-0.1K-forge-1.20.1
+          path: nightfall-build/nightfall_01k/build/libs/*.jar
+          if-no-files-found: error

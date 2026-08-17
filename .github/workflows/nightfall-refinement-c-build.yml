@@ -74,18 +74,11 @@ jobs:
           rm -f nightfall_reboot/src/main/resources/data/eternal_skies_nightfall/forge/biome_modifier/add_stormling.json
           grep -q '0.1.0-reboot-c' nightfall_reboot/gradle.properties
 
-      - name: Install refined high-detail entity textures
+      - name: Paint refined Duskborn and install refined Stormling textures
         shell: bash
         run: |
           TEX='nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity'
-          cat \
-            nightfall_refine_c/duskborn.png.b64.00 \
-            nightfall_refine_c/duskborn.png.b64.01 \
-            nightfall_refine_c/duskborn.png.b64.02 \
-            nightfall_refine_c/duskborn.png.b64.03 \
-            nightfall_refine_c/duskborn.png.b64.04 \
-            | tr -d '[:space:]' | base64 -d > "$TEX/duskborn.png"
-          tr -d '[:space:]' < nightfall_refine_c/duskborn_glow.png.b64 | base64 -d > "$TEX/duskborn_glow.png"
+          python3 nightfall_refine_c/paint_duskborn_refine_c.py
           tr -d '[:space:]' < nightfall_refine_c/stormling.png.b64 | base64 -d > "$TEX/stormling.png"
           tr -d '[:space:]' < nightfall_refine_c/stormling_glow.png.b64 | base64 -d > "$TEX/stormling_glow.png"
           sha256sum "$TEX/duskborn.png" "$TEX/duskborn_glow.png" "$TEX/stormling.png" "$TEX/stormling_glow.png"

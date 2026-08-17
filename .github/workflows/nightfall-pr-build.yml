@@ -69,13 +69,17 @@ jobs:
           if [ "$ZIP_EXTRACT" -gt 1 ]; then exit "$ZIP_EXTRACT"; fi
           test -f nightfall-build/nightfall_01k/build.gradle
 
-      - name: Apply Forge 1.20.1 compatibility fixes
+      - name: Apply Nightfall 0.1L runtime fixes
         shell: bash
         run: |
-          FILE=nightfall-build/nightfall_01k/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java
+          ROOT=nightfall-build/nightfall_01k
+          FILE="$ROOT/src/main/java/dev/eternalskies/nightfall/entity/DuskbornEntity.java"
           sed -i 's/import net.minecraft.world.entity.ai.goal.AvoidSunGoal;/import net.minecraft.world.entity.ai.goal.FleeSunGoal;/' "$FILE"
           sed -i 's/new AvoidSunGoal(this)/new FleeSunGoal(this, 1.05D)/' "$FILE"
-          grep -nE 'RestrictSunGoal|FleeSunGoal' "$FILE"
+          sed -i 's/return Mob.createMobAttributes()/return Zombie.createAttributes()/' "$FILE"
+          sed -i 's/mod_version=0.1.0-dev-k/mod_version=0.1.0-dev-l/' "$ROOT/gradle.properties"
+          grep -nE 'createAttributes|Zombie.createAttributes|RestrictSunGoal|FleeSunGoal' "$FILE"
+          grep '^mod_version=' "$ROOT/gradle.properties"
 
       - name: Build Forge mod
         working-directory: nightfall-build/nightfall_01k
@@ -84,6 +88,6 @@ jobs:
       - name: Upload Nightfall JAR
         uses: actions/upload-artifact@v4
         with:
-          name: EternalSkies-Nightfall-0.1K-forge-1.20.1
+          name: EternalSkies-Nightfall-0.1L-forge-1.20.1
           path: nightfall-build/nightfall_01k/build/libs/*.jar
           if-no-files-found: error

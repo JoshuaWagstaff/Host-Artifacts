@@ -45,13 +45,8 @@ jobs:
       - name: Apply full model animation and sound-code art pass
         shell: bash
         run: |
-          cat \
-            nightfall_art_payload/part00.patch \
-            nightfall_art_payload/part01.patch \
-            nightfall_art_payload/part02.patch \
-            nightfall_art_payload/part03.patch \
-            nightfall_art_payload/part04.patch \
-            > /tmp/nightfall-artpass.patch
+          cat nightfall_art_payload/patch.gz.b64.00 nightfall_art_payload/patch.gz.b64.01 \
+            | tr -d '[:space:]' | base64 -d | gzip -dc > /tmp/nightfall-artpass.patch
           patch --batch -p0 < /tmp/nightfall-artpass.patch
           grep -q '0.1.0-reboot-b' nightfall_reboot/gradle.properties
           test -f nightfall_reboot/src/main/java/dev/eternalskies/nightfall/registry/NightfallSounds.java

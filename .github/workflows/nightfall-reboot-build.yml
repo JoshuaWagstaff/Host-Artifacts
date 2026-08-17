@@ -54,9 +54,7 @@ jobs:
       - name: Generate hand-designed textures and original sound assets
         shell: bash
         run: |
-          python3 -m pip install --disable-pip-version-check --quiet pillow numpy
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install --disable-pip-version-check --quiet pillow numpy soundfile
           python3 nightfall_art_payload/paint_assets.py
           python3 nightfall_art_payload/make_sounds.py
           test -s nightfall_reboot/src/main/resources/assets/eternal_skies_nightfall/textures/entity/duskborn.png
